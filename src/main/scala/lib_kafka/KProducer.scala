@@ -5,7 +5,7 @@ import org.apache.kafka.clients.producer.KafkaProducer
 
 import java.util.Properties
 
-abstract class Producer[K, V, A <: ProdRecord[K, V]](
+abstract class KProducer[K, V, A <: KRecord[K, V]](
       props: Properties,
       topic: String,
       keySerializerName: String,
@@ -16,15 +16,10 @@ abstract class Producer[K, V, A <: ProdRecord[K, V]](
 
     private val javaProducer = new KafkaProducer[K, V](props);
 
-    def produce(record: ProdRecord[K, V]): IO[Unit] =  {
+    def produce(record: KRecord[K, V]): IO[Unit] =  {
         IO.blocking {
             javaProducer.send(record.toJavaRecord(topic)).get()
         }
     }
 }
 
-class BikeEventProducer(props: Properties) extends Producer[Int, String, BikeEventRecord](
-    props,
-    "bike-event",
-    "org.apache.kafka.common.serialization.IntegerSerializer",
-    "org.apache.kafka.common.serialization.StringSerializer") {}

@@ -2,7 +2,7 @@ package lib_kafka
 
 import org.apache.kafka.clients.producer.ProducerRecord
 
-trait ProdRecord[K, V] {
+trait KRecord[K, V] {
     def key: K
     def value: V
 
@@ -11,5 +11,4 @@ trait ProdRecord[K, V] {
     }
 }
 
-final case class BikeEventRecord(key: Int, value: String) extends ProdRecord[Int, String]
 

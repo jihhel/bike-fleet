@@ -1,0 +1,30 @@
+syntax = "proto3";
+package stations;
+
+service StationsService {
+  rpc GetStations (GetStationsRequest) returns (GetStationsResponse) {}
+  rpc GetBikesFromStation (GetBikesFromStationRequest) returns (GetBikesFromStationResponse) {}
+}
+
+message GetStationsRequest {}
+
+message GetStationsResponse {
+  repeated Station stations = 1;
+}
+
+message GetBikesFromStationRequest {
+  uint32 stationId = 1;
+}
+
+message GetBikesFromStationResponse {
+  uint32 stationId = 1;
+  repeated Bike availableBikes = 2;
+}
+
+message Station {
+  uint32 stationId = 1;
+}
+
+message Bike {
+  uint32 bikeId = 1;
+}

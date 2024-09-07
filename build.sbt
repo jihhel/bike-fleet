@@ -1,5 +1,9 @@
 val scala3Version = "3.5.0"
 
+resolvers += "Akka library repository".at("https://repo.akka.io/maven")
+
+enablePlugins(AkkaGrpcPlugin)
+
 lazy val root = project
   .in(file("."))
   .settings(
@@ -7,8 +11,6 @@ lazy val root = project
     version := "0.1.0-SNAPSHOT",
 
     scalaVersion := scala3Version,
-    resolvers += Resolver.bintrayRepo("cakesolutions", "maven"),
-
 
     libraryDependencies ++= Seq(
       "org.apache.kafka" % "kafka-clients" % "3.8.0",
