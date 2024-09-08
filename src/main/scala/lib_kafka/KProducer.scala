@@ -1,7 +1,7 @@
 package lib_kafka
 
 import cats.effect.IO
-import org.apache.kafka.clients.producer.KafkaProducer
+import org.apache.kafka.clients.producer.{KafkaProducer, RecordMetadata}
 
 import java.util.Properties
 
@@ -16,7 +16,7 @@ abstract class KProducer[K, V, A <: KRecord[K, V]](
 
     private val javaProducer = new KafkaProducer[K, V](props);
 
-    def produce(record: KRecord[K, V]): IO[Unit] =  {
+    def produce(record: KRecord[K, V]): IO[RecordMetadata] = {
         IO.blocking {
             javaProducer.send(record.toJavaRecord(topic)).get()
         }

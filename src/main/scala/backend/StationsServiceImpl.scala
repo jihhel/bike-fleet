@@ -12,7 +12,7 @@ class StationsServiceImpl extends StationsService {
     Bike(idx)
   })
 
-  val stationsWithBikes = stations.map(s => {
+  private val stationsWithBikes = stations.map(s => {
     val stationId = s.stationId
     s.stationId -> bikes.slice(stationId * 10, stationId * 10 + 10)
   }).toMap

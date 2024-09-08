@@ -2,11 +2,13 @@ package bike_simulation
 
 import akka.actor.ActorSystem
 import akka.grpc.GrpcClientSettings
+import bike_simulation.dto.User
 import cats.effect.{ExitCode, IO, IOApp}
 import stations.{GetStationsRequest, StationsServiceClient}
 
 import scala.concurrent.ExecutionContext
 import cats.implicits.*
+import com.google.gson.JsonSerializer
 import com.typesafe.config.ConfigFactory
 
 import java.net.InetAddress
@@ -18,12 +20,12 @@ object BikeSimulation extends IOApp {
     implicit val sys: ActorSystem = ActorSystem("BikeSimulation")
     implicit val ec: ExecutionContext = sys.dispatcher
 
-    StationsServiceClient(GrpcClientSettings.fromConfig("bike_simulation"))
+    StationsServiceClient(GrpcClientSettings.fromConfig("bike_simulation").withTls(false))
   }
 
   private def makeMessageProducer() = {
+    ConfigFactory.defaultApplication()
     val config = new Properties();
-    println(config)
     config.put("client.id", InetAddress.getLocalHost.getHostName);
     config.put("bootstrap.servers", "localhost:29092");
 

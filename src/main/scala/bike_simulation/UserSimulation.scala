@@ -1,17 +1,20 @@
 package bike_simulation
 
+import bike_simulation.bike_event.{BikeRecord, BikeReturnedEvent, BikeStatusEvent, BikeTakenEvent}
+import bike_simulation.dto.User
 import cats.effect.IO
+import org.apache.kafka.clients.producer.RecordMetadata
 import stations.{Bike, GetBikesFromStationRequest, Station, StationsServiceClient}
 
 import java.time.Instant
 import scala.util.Random
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 
 class UserSimulation(val stationsClient: StationsServiceClient, val messageProducer: BikeProducer) {
 
   def start(stations: List[Station], user: User): IO[Unit] = {
     val startPosition = Random.shuffle(stations).head
-    println(s"Starting simulation for user $user")
+    println(s"Starting simulation for $user")
     runOnce(stations, startPosition, user)
   }
 
@@ -45,9 +48,9 @@ class UserSimulation(val stationsClient: StationsServiceClient, val messageProdu
     Random.shuffle(stations.filter(_.stationId == currentPosition.stationId)).head
   }
 
-  private def takeBikeFromStation(user: User, station: Station, bike: Bike): IO[Unit] = {
+  private def takeBikeFromStation(user: User, station: Station, bike: Bike): IO[RecordMetadata] = {
     val eventData = BikeTakenEvent(user.userId, bike.bikeId, station.stationId, Instant.now)
-    println(s"$user takes a bike on a ride $eventData")
+    println(s"$user takes a bike on a ride ($eventData)")
 
     messageProducer.produce(BikeRecord(bike.bikeId, eventData))
   }
@@ -57,7 +60,7 @@ class UserSimulation(val stationsClient: StationsServiceClient, val messageProdu
     // Action to execute at each step of the travel
     val statusUpdateIO = IO {
       val eventData = BikeStatusEvent(bike.bikeId, Instant.now)
-      println(s"Bike $bike is progressing towards $destination $eventData")
+      println(s"$bike is progressing towards $destination ($eventData)")
 
       // Send report to queue and wait 2 seconds before any other action
       messageProducer.produce(BikeRecord(bike.bikeId, eventData)) *> IO.sleep(2.seconds)
@@ -66,9 +69,9 @@ class UserSimulation(val stationsClient: StationsServiceClient, val messageProdu
     // Execute the action nbSteps times
     statusUpdateIO.replicateA_(nbSteps)
   }
-  private def returnBike(bike: Bike, destination: Station): IO[Unit] = {
+  private def returnBike(bike: Bike, destination: Station): IO[RecordMetadata] = {
     val eventData = BikeReturnedEvent(bike.bikeId, destination.stationId, Instant.now)
-    println(s"Returning bike $bike to station $destination $eventData")
+    println(s"Returning $bike to $destination ($eventData)")
 
     messageProducer.produce(BikeRecord(bike.bikeId, eventData))
   }

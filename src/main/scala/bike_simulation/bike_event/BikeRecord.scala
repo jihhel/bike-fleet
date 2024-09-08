@@ -1,4 +1,4 @@
-package bike_simulation
+package bike_simulation.bike_event
 
 import lib_kafka.KRecord
 
