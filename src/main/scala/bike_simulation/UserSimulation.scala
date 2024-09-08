@@ -1,8 +1,8 @@
 package bike_simulation
 
-import bike_simulation.bike_event.{BikeRecord, BikeReturnedEvent, BikeStatusEvent, BikeTakenEvent}
 import bike_simulation.dto.User
 import cats.effect.IO
+import messages.bike_event.{BikeRecord, BikeReturnedEvent, BikeStatusEvent, BikeTakenEvent}
 import org.apache.kafka.clients.producer.RecordMetadata
 import stations.{Bike, GetBikesFromStationRequest, Station, StationsServiceClient}
 
@@ -75,5 +75,4 @@ class UserSimulation(val stationsClient: StationsServiceClient, val messageProdu
 
     messageProducer.produce(BikeRecord(bike.bikeId, eventData))
   }
-
 }

@@ -8,30 +8,33 @@ import com.typesafe.config.ConfigFactory
 import stations.StationsServiceHandler
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.duration.*
 import scala.util.{Failure, Success}
 
-object Backend extends App {
-    val conf = ConfigFactory.parseString("akka.http.server.enable-http2 = on")
-      .withFallback(ConfigFactory.defaultApplication())
+object Backend extends IOApp {
 
-    implicit val system: ActorSystem = ActorSystem("HelloWorld", conf)
-    implicit val ec: ExecutionContext = system.dispatcher
+    override def run(args: List[String]): IO[ExitCode] = {
+        val akkaHttpConf = ConfigFactory
+          .parseString("akka.http.server.enable-http2 = on")
+          .withFallback(ConfigFactory.defaultApplication())
 
-    val service: HttpRequest => Future[HttpResponse] = StationsServiceHandler(new StationsServiceImpl())
+        implicit val system: ActorSystem = ActorSystem("Backend", akkaHttpConf)
+        implicit val executionContext: ExecutionContext = system.dispatcher
 
-    val bound: Future[Http.ServerBinding] = Http()(system).newServerAt("127.0.0.1", 8080)
-      .bind(service)
+        def startServer: IO[Unit] = IO.async_ { callback =>
+            val service: HttpRequest => Future[HttpResponse] = StationsServiceHandler(new StationsServiceImpl())(system)
 
-    bound.onComplete {
-        case Success(binding) =>
-            val address = binding.localAddress
-            println(s"gRPC server bound to ${address.getHostString}:${address.getPort}")
-        case Failure(ex) =>
-            println("Failed to bind gRPC endpoint, terminating system")
-            ex.printStackTrace()
-            system.terminate()
+            val binding = Http().newServerAt("localhost", 8080).bind(service)
+
+            // Handling server binding success or failure
+            binding.onComplete {
+                case Success(binding) =>
+                    println(s"Server is running at ${binding.localAddress}")
+                case Failure(exception) =>
+                    println(s"Failed to bind the server: ${exception.getMessage}")
+                    callback(Left(exception))
+            }
+        }
+
+        startServer *> IO.never.as(ExitCode.Success)
     }
-
-    bound
 }

@@ -4,6 +4,11 @@ val circeVersion = "0.14.1"
 resolvers += "Akka library repository".at("https://repo.akka.io/maven")
 
 enablePlugins(AkkaGrpcPlugin)
+enablePlugins(FlywayPlugin)
+flywayUrl := "jdbc:postgresql://localhost:15432/bike_fleet"
+flywayUser := "postgres"
+flywayPassword := "password"
+flywayLocations := Seq("filesystem:src/main/resources/db")
 
 lazy val root = project
   .in(file("."))
@@ -16,6 +21,7 @@ lazy val root = project
     libraryDependencies ++= Seq(
       "org.apache.kafka" % "kafka-clients" % "3.8.0",
       "org.typelevel" %% "cats-effect" % "3.5.4",
+      "org.postgresql" % "postgresql" % "42.7.4",
       "org.scalameta" %% "munit" % "1.0.0" % Test
     ) ++ Seq(
       "io.circe" %% "circe-core",

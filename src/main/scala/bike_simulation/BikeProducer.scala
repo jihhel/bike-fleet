@@ -1,7 +1,7 @@
 package bike_simulation
 
-import bike_simulation.bike_event.{BikeEvent, BikeRecord}
 import lib_kafka.KProducer
+import messages.bike_event.{BikeEvent, BikeRecord}
 
 import java.util.Properties
 
@@ -9,4 +9,4 @@ class BikeProducer(props: Properties) extends KProducer[Int, BikeEvent, BikeReco
   props,
   "bike-event",
   "org.apache.kafka.common.serialization.IntegerSerializer",
-  "bike_simulation.bike_event.BikeEventSerializer") {}
+  "messages.bike_event.BikeEventSerializer") {}
