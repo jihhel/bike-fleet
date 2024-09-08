@@ -1,7 +1,7 @@
-package bike_simulation.bike_event
+package messages.bike_event
 
-import io.circe._
-import io.circe.syntax._
+import io.circe.*
+import io.circe.syntax.*
 import org.apache.kafka.common.serialization.Serializer
 
 class BikeEventSerializer extends Serializer[BikeEvent] {

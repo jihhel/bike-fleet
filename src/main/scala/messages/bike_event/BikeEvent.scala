@@ -1,10 +1,10 @@
-package bike_simulation.bike_event
+package messages.bike_event
 
-import bike_simulation.bike_event.BikeEventType.{BIKE_RETURNED, BIKE_STATUS_UPDATE, BIKE_TAKEN}
-import io.circe._
-import io.circe.generic.auto._
-import io.circe.syntax._
-import io.circe.Json
+import io.circe.*
+import io.circe.generic.auto.*
+import io.circe.syntax.*
+import messages.bike_event.BikeEventType.*
+
 import java.time.Instant
 
 enum BikeEventType {
